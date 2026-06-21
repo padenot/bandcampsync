@@ -287,12 +287,11 @@ class Syncer:
 
         if item.is_preorder:
             log.info(
-                f'Item is a preorder, skipping: "{item.band_name} / {item.item_title}" '
-                f"(id:{item.item_id})"
+                f'Item is marked as a preorder but has a download URL; attempting download: '
+                f'"{item.band_name} / {item.item_title}" (id:{item.item_id})'
             )
-            return False
 
-        elif self.local_media.is_locally_downloaded(item, local_path):
+        if self.local_media.is_locally_downloaded(item, local_path):
             log.info(
                 f'Already locally downloaded, skipping: "{item.band_name} / {item.item_title}" '
                 f"(id:{item.item_id})"
@@ -397,19 +396,15 @@ class Syncer:
                             return False
 
                         if self.ign_file_path:
-                            # We assume that if you use an "ignore" file once, you'll
-                            # keep using it forever (e.g. Docker).
-                            # If you don't, you'll get a warning for the missing ID file
-                            # on the items downloaded in the current session.
+                            # Keep the ignore file as the durable downloaded-item index.
                             self.ignores.add(item)
-                        else:
-                            try:
-                                self.local_media.write_bandcamp_id(item, local_path)
-                            except (OSError, ValueError) as e:
-                                self._record_sync_error(
-                                    f'Failed to write bandcamp item id for "{item.band_name} / {item.item_title}" '
-                                    f'(id:{item.item_id}) to "{local_path}": {e}'
-                                )
+                        try:
+                            self.local_media.write_bandcamp_id(item, local_path)
+                        except (OSError, ValueError) as e:
+                            self._record_sync_error(
+                                f'Failed to write bandcamp item id for "{item.band_name} / {item.item_title}" '
+                                f'(id:{item.item_id}) to "{local_path}": {e}'
+                            )
 
                         self.new_items_downloaded = True
                         return True

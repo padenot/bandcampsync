@@ -1,3 +1,11 @@
 *
+!bandcampsync/
+!bandcampsync/**
+!bin/
+!bin/**
+!pyproject.toml
+!setup.py
+!README.md
+!LICENSE
 !entrypoint.sh
 !ignores.template.txt
